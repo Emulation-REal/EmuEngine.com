@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mini Web Engine</title>
+  <style>
+    body, html {
+      margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column;
+      font-family: Arial, sans-serif;
+    }
+    #controls {
+      padding: 5px;
+      background: #222;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    #urlInput {
+      flex-grow: 1;
+      padding: 5px;
+      font-size: 16px;
+    }
+    button {
+      padding: 5px 10px;
+      font-size: 16px;
+      cursor: pointer;
+      background: #444;
+      color: white;
+      border: none;
+      border-radius: 3px;
+    }
+    iframe {
+      flex-grow: 1;
+      width: 100%;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="controls">
+    <button id="backBtn">&lt; Back</button>
+    <button id="forwardBtn">Forward &gt;</button>
+    <input type="text" id="urlInput" placeholder="Enter URL here (https://...)" />
+    <button id="goBtn">Go</button>
+  </div>
+
+  <iframe id="webview" src="https://example.com"></iframe>
+
+  <script>
+    const webview = document.getElementById('webview');
+    const urlInput = document.getElementById('urlInput');
+    const backBtn = document.getElementById('backBtn');
+    const forwardBtn = document.getElementById('forwardBtn');
+    const goBtn = document.getElementById('goBtn');
+
+    // History stack
+    const historyStack = [];
+    let currentIndex = -1;
+
+    function navigateTo(url) {
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = 'https://' + url;
+      }
+      webview.src = url;
+      // Add to history, cut off forward history if we navigated after going back
+      historyStack.splice(currentIndex + 1);
+      historyStack.push(url);
+      currentIndex++;
+      updateButtons();
+      urlInput.value = url;
+    }
+
+    function updateButtons() {
+      backBtn.disabled = currentIndex <= 0;
+      forwardBtn.disabled = currentIndex >= historyStack.length - 1;
+    }
+
+    backBtn.onclick = () => {
+      if (currentIndex > 0) {
+        currentIndex--;
+        webview.src = historyStack[currentIndex];
+        urlInput.value = historyStack[currentIndex];
+        updateButtons();
+      }
+    };
+
+    forwardBtn.onclick = () => {
+      if (currentIndex < historyStack.length - 1) {
+        currentIndex++;
+        webview.src = historyStack[currentIndex];
+        urlInput.value = historyStack[currentIndex];
+        updateButtons();
+      }
+    };
+
+    goBtn.onclick = () => {
+      navigateTo(urlInput.value.trim());
+    };
+
+    urlInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        navigateTo(urlInput.value.trim());
+      }
+    });
+
+    // Initialize
+    navigateTo('https://example.com');
+  </script>
+
+</body>
+</html>
