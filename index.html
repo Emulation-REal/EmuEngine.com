@@ -1,581 +1,721 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>EmuEngine - Dark Mode Web Engine</title>
-  <style>
-    /* Base reset */
-    * {
-      box-sizing: border-box;
-    }
-    body, html {
-      margin: 0; padding: 0; height: 100%;
-      background-color: #202124;
-      color: #e8eaed;
-      font-family: 'Roboto', Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-    }
-    header {
-      padding: 15px 20px;
-      font-weight: 700;
-      font-size: 28px;
-      color: #8ab4f8;
-      user-select: none;
-      border-bottom: 1px solid #3c4043;
-    }
-    header .emuengine {
-      color: #8ab4f8;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>EmuEngine.com - Mini Browser</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
-    /* Tab bar */
-    #tab-bar {
-      display: flex;
-      background: #303134;
-      border-bottom: 1px solid #5f6368;
-      height: 42px;
-      align-items: center;
-      padding: 0 8px;
-      overflow-x: auto;
-      scrollbar-width: thin;
-    }
-    #tab-bar::-webkit-scrollbar {
-      height: 6px;
-    }
-    #tab-bar::-webkit-scrollbar-thumb {
-      background: #5f6368;
-      border-radius: 3px;
-    }
-    .tab {
-      display: flex;
-      align-items: center;
-      padding: 6px 14px;
-      margin-right: 6px;
-      background: #3c4043;
-      border-radius: 8px 8px 0 0;
-      cursor: pointer;
-      user-select: none;
-      white-space: nowrap;
-      font-size: 15px;
-      color: #e8eaed;
-      max-width: 190px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      border: 1px solid #5f6368;
-      border-bottom: none;
-      transition: background-color 0.3s;
-    }
-    .tab.active {
-      background: #202124;
-      font-weight: 700;
-      border-color: #8ab4f8;
-      color: #8ab4f8;
-    }
-    .tab:hover:not(.active) {
-      background: #4a4f54;
-    }
-    .tab .close-btn {
-      margin-left: 10px;
-      font-weight: 700;
-      color: #8ab4f8;
-      cursor: pointer;
-      user-select: none;
-      transition: color 0.3s;
-    }
-    .tab .close-btn:hover {
-      color: #ea4335;
-    }
-    #add-tab-btn {
-      font-size: 24px;
-      color: #8ab4f8;
-      cursor: pointer;
-      padding: 0 10px;
-      user-select: none;
-      border-radius: 8px;
-      transition: background-color 0.3s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    #add-tab-btn:hover {
-      background: #4a4f54;
-    }
+  :root {
+    --bg-light: #fff;
+    --text-light: #202124;
+    --input-bg-light: #f1f3f4;
+    --bg-dark: #202124;
+    --text-dark: #e8eaed;
+    --input-bg-dark: #303134;
+    --accent-color: #1a73e8;
+  }
 
-    /* Address bar */
-    #address-bar-container {
-      display: flex;
-      padding: 12px 20px;
-      border-bottom: 1px solid #3c4043;
-      background: #202124;
-      align-items: center;
-    }
-    #address-bar {
-      flex: 1;
-      font-size: 17px;
-      padding: 10px 16px;
-      border: 1px solid #5f6368;
-      border-radius: 24px;
-      outline: none;
-      background: #303134;
-      color: #e8eaed;
-      transition: border-color 0.3s;
-    }
-    #address-bar::placeholder {
-      color: #8a8f99;
-    }
-    #address-bar:focus {
-      border-color: #8ab4f8;
-      box-shadow: 0 0 10px #8ab4f8aa;
-    }
-    #go-btn {
-      margin-left: 14px;
-      background: #8ab4f8;
-      border: none;
-      color: #202124;
-      font-weight: 700;
-      padding: 11px 24px;
-      border-radius: 24px;
-      cursor: pointer;
-      user-select: none;
-      transition: background 0.3s;
-      font-size: 16px;
-    }
-    #go-btn:hover {
-      background: #6f95e6;
-    }
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Roboto', sans-serif;
+    background: var(--bg-light);
+    color: var(--text-light);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
 
-    /* Iframe container */
-    #iframe-container {
-      flex-grow: 1;
-      height: calc(100vh - 160px);
-      background: #202124;
-      position: relative;
-    }
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      background: white;
-      border-radius: 0 0 12px 12px;
-    }
+  body.dark {
+    background: var(--bg-dark);
+    color: var(--text-dark);
+  }
 
-    /* New Tab page */
-    #new-tab-page {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 28px;
-      padding: 0 20px;
-      text-align: center;
-      color: #e8eaed;
-      user-select: none;
-    }
-    #new-tab-page h1 {
-      font-size: 48px;
-      font-weight: 700;
-      margin: 0;
-      color: #8ab4f8;
-    }
-    #new-tab-page p {
-      font-size: 20px;
-      max-width: 480px;
-      margin: 0 auto;
-      color: #b0b0b0;
-    }
-    #favorites-list {
-      display: flex;
-      gap: 22px;
-      flex-wrap: wrap;
-      justify-content: center;
-      max-width: 700px;
-    }
-    .fav-site {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      cursor: pointer;
-      user-select: none;
-      width: 100px;
-      transition: transform 0.2s;
-      color: #e8eaed;
-      text-decoration: none;
-    }
-    .fav-site:hover {
-      transform: scale(1.1);
-      color: #8ab4f8;
-    }
-    .fav-site img {
-      width: 48px;
-      height: 48px;
-      margin-bottom: 6px;
-      border-radius: 12px;
-      filter: drop-shadow(0 0 3px #8ab4f8aa);
-      background: #3c4043;
-      padding: 6px;
-    }
-    .fav-site span {
-      font-size: 14px;
-      font-weight: 500;
-    }
-  </style>
+  header {
+    background: var(--input-bg-light);
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid #ccc;
+  }
+
+  body.dark header {
+    background: var(--input-bg-dark);
+    border-color: #444;
+  }
+
+  #tabs {
+    display: flex;
+    overflow-x: auto;
+    flex-grow: 1;
+  }
+
+  .tab {
+    background: transparent;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    margin-right: 4px;
+    border-radius: 4px 4px 0 0;
+    cursor: pointer;
+    font-weight: 500;
+    color: inherit;
+    border-bottom: 2px solid transparent;
+    user-select: none;
+  }
+  .tab.active {
+    border-bottom-color: var(--accent-color);
+    font-weight: 700;
+  }
+  .tab:hover:not(.active) {
+    background: rgba(26, 115, 232, 0.1);
+  }
+  body.dark .tab:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  .tab .close-btn {
+    margin-left: 6px;
+    font-weight: normal;
+    color: #888;
+  }
+  .tab .close-btn:hover {
+    color: var(--accent-color);
+  }
+
+  #btn-new-tab {
+    background: var(--accent-color);
+    border: none;
+    padding: 0.3rem 0.7rem;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    border-radius: 4px;
+    user-select: none;
+  }
+  #btn-new-tab:hover {
+    background: #155ab6;
+  }
+
+  #address-bar {
+    flex-grow: 1;
+    padding: 0.4rem 0.8rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-left: 10px;
+  }
+  body.dark #address-bar {
+    background: var(--input-bg-dark);
+    border-color: #444;
+    color: var(--text-dark);
+  }
+
+  #btn-go {
+    margin-left: 8px;
+    background: var(--accent-color);
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 0.4rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  #btn-go:hover {
+    background: #155ab6;
+  }
+
+  #content {
+    flex-grow: 1;
+    position: relative;
+    background: black;
+  }
+
+  iframe.browser-frame {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    border: none;
+    display: none;
+  }
+  iframe.browser-frame.active {
+    display: block;
+  }
+
+  #sidebar {
+    width: 280px;
+    border-left: 1px solid #ccc;
+    background: var(--input-bg-light);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  body.dark #sidebar {
+    background: var(--input-bg-dark);
+    border-color: #444;
+  }
+  #sidebar h2 {
+    margin: 0.5rem 1rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+  #sidebar section {
+    margin-bottom: 1rem;
+    padding: 0 1rem;
+  }
+  #sidebar ul {
+    list-style: none;
+    padding-left: 0;
+    max-height: 160px;
+    overflow-y: auto;
+    margin-top: 0.3rem;
+  }
+  #sidebar li {
+    padding: 0.2rem 0.4rem;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  #sidebar li:hover {
+    background: var(--accent-color);
+    color: white;
+  }
+  #sidebar button {
+    margin-top: 0.3rem;
+    width: 100%;
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 0.4rem;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  #sidebar button:hover {
+    background: #155ab6;
+  }
+
+  #console {
+    height: 120px;
+    background: #222;
+    color: #0f0;
+    font-family: monospace;
+    font-size: 0.85rem;
+    overflow-y: auto;
+    padding: 0.5rem;
+  }
+
+  #theme-toggle {
+    background: transparent;
+    border: 1px solid var(--accent-color);
+    color: var(--accent-color);
+    font-weight: 600;
+    padding: 0.3rem 0.7rem;
+    border-radius: 4px;
+    cursor: pointer;
+    user-select: none;
+  }
+  #theme-toggle:hover {
+    background: var(--accent-color);
+    color: white;
+  }
+
+  #main-container {
+    display: flex;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  #left-pane {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Search homepage style */
+  #homepage {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-light);
+  }
+  body.dark #homepage {
+    color: var(--text-dark);
+  }
+  #homepage img.logo {
+    width: 272px;
+    margin-bottom: 20px;
+  }
+  #homepage #search-input {
+    width: 480px;
+    max-width: 90vw;
+    font-size: 1.5rem;
+    padding: 0.6rem 1rem;
+    border-radius: 9999px;
+    border: 1px solid #dfe1e5;
+    outline: none;
+    transition: box-shadow 0.2s;
+  }
+  #homepage #search-input:focus {
+    box-shadow: 0 0 8px var(--accent-color);
+    border-color: var(--accent-color);
+  }
+  #homepage #search-btn {
+    margin-top: 15px;
+    background: var(--accent-color);
+    color: white;
+    font-weight: 600;
+    border: none;
+    padding: 0.5rem 2rem;
+    font-size: 1.1rem;
+    border-radius: 9999px;
+    cursor: pointer;
+  }
+  #homepage #search-btn:hover {
+    background: #155ab6;
+  }
+</style>
 </head>
 <body>
-  <header>
-    <span class="emuengine">EmuEngine</span>.com
-  </header>
+<header>
+  <div id="tabs"></div>
+  <button id="btn-new-tab" title="New Tab">+</button>
+  <input type="text" id="address-bar" placeholder="Enter URL or Search query..." autocomplete="off" spellcheck="false" />
+  <button id="btn-go">Go</button>
+  <button id="theme-toggle" title="Toggle Dark/Light Theme">Dark Mode</button>
+</header>
 
-  <div id="tab-bar" role="tablist" aria-label="Browser tabs">
-    <!-- Tabs will go here -->
-    <div id="add-tab-btn" title="New Tab" role="button" tabindex="0">+</div>
-  </div>
+<div id="main-container">
+  <div id="left-pane">
+    <div id="homepage" style="display:none;">
+      <img class="logo" src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" alt="EmuEngine Logo"/>
+      <input id="search-input" type="text" placeholder="Search EmuEngine or enter URL" autocomplete="off" spellcheck="false" />
+      <button id="search-btn">EmuEngine Search</button>
+    </div>
 
-  <div id="address-bar-container">
-    <input
-      type="text"
-      id="address-bar"
-      aria-label="Address bar"
-      placeholder="Search Google or enter URL"
-      autocomplete="off"
-      spellcheck="false"
-    />
-    <button id="go-btn" aria-label="Go">Go</button>
+    <div id="content"></div>
+    <div id="console"></div>
   </div>
+  <div id="sidebar">
+    <section>
+      <h2>Bookmarks</h2>
+      <ul id="bookmark-list"></ul>
+      <button id="btn-add-bookmark">Add Current Page</button>
+    </section>
 
-  <div id="iframe-container">
-    <!-- Active tab content or new tab page -->
+    <section>
+      <h2>History</h2>
+      <ul id="history-list"></ul>
+      <button id="btn-clear-history">Clear History</button>
+    </section>
+
+    <section>
+      <h2>Quick Access</h2>
+      <ul id="quick-access-list"></ul>
+    </section>
   </div>
+</div>
 
 <script>
-  (() => {
-    const tabBar = document.getElementById('tab-bar');
-    const addTabBtn = document.getElementById('add-tab-btn');
-    const addressBar = document.getElementById('address-bar');
-    const goBtn = document.getElementById('go-btn');
-    const iframeContainer = document.getElementById('iframe-container');
+(() => {
+  // Elements
+  const tabsEl = document.getElementById('tabs');
+  const btnNewTab = document.getElementById('btn-new-tab');
+  const addressBar = document.getElementById('address-bar');
+  const btnGo = document.getElementById('btn-go');
+  const contentEl = document.getElementById('content');
+  const consoleEl = document.getElementById('console');
+  const themeToggleBtn = document.getElementById('theme-toggle');
+  const homepageEl = document.getElementById('homepage');
+  const searchInput = document.getElementById('search-input');
+  const searchBtn = document.getElementById('search-btn');
 
-    // List of allowed websites for the favorites list (that usually allow iframe embedding)
-    const allowedSites = [
-      {
-        name: 'Example.com',
-        url: 'https://example.com',
-        icon: 'https://example.com/favicon.ico',
-      },
-      {
-        name: 'Wikipedia',
-        url: 'https://en.wikipedia.org/wiki/Main_Page',
-        icon: 'https://en.wikipedia.org/static/favicon/wikipedia.ico',
-      },
-      {
-        name: 'MDN Web Docs',
-        url: 'https://developer.mozilla.org',
-        icon: 'https://developer.mozilla.org/favicon-48x48.cbbd161b.png',
-      },
-      {
-        name: 'Archive.org',
-        url: 'https://archive.org',
-        icon: 'https://archive.org/favicon.ico',
-      },
-      {
-        name: 'W3Schools',
-        url: 'https://www.w3schools.com',
-        icon: 'https://www.w3schools.com/favicon.ico',
-      },
-      {
-        name: 'EmuEngine.com',
-        url: 'https://emuengine.com', // Placeholder or your own site
-        icon: 'https://emuengine.com/favicon.ico',
-      }
-    ];
+  // Sidebar
+  const bookmarkListEl = document.getElementById('bookmark-list');
+  const btnAddBookmark = document.getElementById('btn-add-bookmark');
+  const historyListEl = document.getElementById('history-list');
+  const btnClearHistory = document.getElementById('btn-clear-history');
+  const quickAccessListEl = document.getElementById('quick-access-list');
 
-    let tabs = [];
-    let activeTabId = null;
+  // Data Keys for localStorage
+  const LS_BOOKMARKS = 'emuengine_bookmarks';
+  const LS_HISTORY = 'emuengine_history';
+  const LS_THEME = 'emuengine_theme';
+  const LS_QUICK_ACCESS = 'emuengine_quick_access';
 
-    function createTab(url = '') {
-      const id = 'tab-' + Math.random().toString(36).substr(2, 9);
-      return {
-        id,
-        url,
-        title: 'New Tab',
-        iframe: null,
-        tabElement: null,
-      };
+  // State
+  let tabs = [];
+  let activeTabId = null;
+
+  // --- Utilities ---
+
+  function logConsole(msg) {
+    const time = new Date().toLocaleTimeString();
+    consoleEl.textContent += `[${time}] ${msg}\n`;
+    consoleEl.scrollTop = consoleEl.scrollHeight;
+  }
+
+  function saveToStorage(key, data) {
+    localStorage.setItem(key, JSON.stringify(data));
+  }
+
+  function loadFromStorage(key, defaultVal) {
+    try {
+      const val = localStorage.getItem(key);
+      return val ? JSON.parse(val) : defaultVal;
+    } catch {
+      return defaultVal;
     }
+  }
 
-    // Render favorites list on new tab page
-    function createNewTabPage() {
-      const container = document.createElement('div');
-      container.id = 'new-tab-page';
+  function normalizeUrl(input) {
+    if (!input) return null;
+    input = input.trim();
 
-      const title = document.createElement('h1');
-      title.textContent = 'EmuEngine';
+    // If looks like URL, add https:// if no protocol
+    try {
+      let urlObj = new URL(input);
+      return urlObj.href;
+    } catch {
+      // Not a URL, treat as search
+      return `https://www.google.com/search?q=${encodeURIComponent(input)}`;
+    }
+  }
 
-      const subtitle = document.createElement('p');
-      subtitle.textContent = 'A fast, dark-themed web engine';
+  function createIframe(url, id) {
+    const iframe = document.createElement('iframe');
+    iframe.src = url;
+    iframe.className = 'browser-frame';
+    iframe.dataset.id = id;
+    iframe.allow = "clipboard-write; clipboard-read";
+    return iframe;
+  }
 
-      const favList = document.createElement('div');
-      favList.id = 'favorites-list';
+  // --- Tab management ---
 
-      allowedSites.forEach(site => {
-        const siteLink = document.createElement('a');
-        siteLink.className = 'fav-site';
-        siteLink.href = '#';
-        siteLink.title = site.name;
-        siteLink.setAttribute('tabindex', '0');
+  function renderTabs() {
+    tabsEl.innerHTML = '';
+    for (const tab of tabs) {
+      const btn = document.createElement('button');
+      btn.className = 'tab';
+      if (tab.id === activeTabId) btn.classList.add('active');
+      btn.textContent = tab.title || tab.url;
+      btn.title = tab.url;
 
-        const img = document.createElement('img');
-        img.src = site.icon || 'https://via.placeholder.com/48?text=?';
-        img.alt = site.name + ' icon';
+      // Close button inside tab
+      const closeBtn = document.createElement('span');
+      closeBtn.textContent = '×';
+      closeBtn.className = 'close-btn';
+      closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeTab(tab.id);
+      });
+      btn.appendChild(closeBtn);
 
-        const span = document.createElement('span');
-        span.textContent = site.name;
-
-        siteLink.appendChild(img);
-        siteLink.appendChild(span);
-
-        siteLink.onclick = (e) => {
-          e.preventDefault();
-          openSiteInTab(site.url);
-        };
-        siteLink.onkeydown = e => {
-          if(e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            openSiteInTab(site.url);
-          }
-        };
-
-        favList.appendChild(siteLink);
+      btn.addEventListener('click', () => {
+        switchTab(tab.id);
       });
 
-      container.appendChild(title);
-      container.appendChild(subtitle);
-      container.appendChild(favList);
-
-      return container;
+      tabsEl.appendChild(btn);
     }
+  }
 
-    // Open site in current active tab or new tab
-    function openSiteInTab(url) {
-      if (!activeTabId) {
-        addNewTab(url);
-        return;
+  function openTab(url, title = '') {
+    const id = Date.now().toString() + Math.random().toString(36).slice(2);
+    const normalizedUrl = normalizeUrl(url);
+
+    const iframe = createIframe(normalizedUrl, id);
+    iframe.addEventListener('load', () => {
+      try {
+        const newTitle = iframe.contentDocument?.title || normalizedUrl;
+        updateTabTitle(id, newTitle);
+      } catch {
+        // Cross origin restriction
       }
-      const tab = tabs.find(t => t.id === activeTabId);
-      if (!tab) {
-        addNewTab(url);
-        return;
-      }
-      tab.url = url;
-      tab.title = url;
-      if (tab.iframe) {
-        tab.iframe.src = url;
-      }
-      renderTabs();
-      addressBar.value = url;
-      showTabContent(tab);
-    }
-
-    // Render tabs
-    function renderTabs() {
-      [...tabBar.querySelectorAll('.tab')].forEach(el => el.remove());
-      for (const tab of tabs) {
-        const tabEl = document.createElement('div');
-        tabEl.classList.add('tab');
-        if (tab.id === activeTabId) tabEl.classList.add('active');
-        tabEl.setAttribute('role', 'tab');
-        tabEl.setAttribute('aria-selected', tab.id === activeTabId ? 'true' : 'false');
-        tabEl.setAttribute('tabindex', tab.id === activeTabId ? '0' : '-1');
-        tabEl.textContent = tab.title || tab.url;
-
-        const closeBtn = document.createElement('span');
-        closeBtn.textContent = '×';
-        closeBtn.className = 'close-btn';
-        closeBtn.title = 'Close tab';
-        closeBtn.setAttribute('role', 'button');
-        closeBtn.setAttribute('tabindex', '0');
-        closeBtn.onclick = e => {
-          e.stopPropagation();
-          closeTab(tab.id);
-        };
-        closeBtn.onkeydown = e => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            closeTab(tab.id);
-          }
-        };
-
-        tabEl.appendChild(closeBtn);
-
-        tabEl.onclick = () => {
-          switchTab(tab.id);
-        };
-        tabEl.onkeydown = e => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            switchTab(tab.id);
-          }
-        };
-
-        tabBar.insertBefore(tabEl, addTabBtn);
-        tab.tabElement = tabEl;
-      }
-    }
-
-    // Show the tab’s content or new tab page
-    function showTabContent(tab) {
-      // Hide all iframes first
-      tabs.forEach(t => {
-        if (t.iframe) t.iframe.style.display = 'none';
-      });
-
-      // Remove new tab page if any
-      const existingNewTabPage = document.getElementById('new-tab-page');
-      if (existingNewTabPage) existingNewTabPage.remove();
-
-      if (!tab.url) {
-        // Show new tab page inside iframe-container
-        iframeContainer.appendChild(createNewTabPage());
-        addressBar.value = '';
-        return;
-      }
-
-      if (!tab.iframe) {
-        const iframe = document.createElement('iframe');
-        iframe.sandbox = 'allow-scripts allow-same-origin allow-forms allow-popups';
-        iframe.src = tab.url;
-
-        iframe.onload = () => {
-          try {
-            let title = iframe.contentDocument.title;
-            if (title) {
-              tab.title = title;
-              if (tab.tabElement) {
-                tab.tabElement.childNodes[0].nodeValue = title;
-              }
-            }
-          } catch(e) {
-            // Cross origin, ignore
-          }
-        };
-
-        iframeContainer.appendChild(iframe);
-        tab.iframe = iframe;
-      }
-
-      tab.iframe.style.display = 'block';
-      addressBar.value = tab.url;
-    }
-
-    // Switch to tab by id
-    function switchTab(id) {
-      if (activeTabId === id) return;
-      const oldTab = tabs.find(t => t.id === activeTabId);
-      if (oldTab && oldTab.iframe) oldTab.iframe.style.display = 'none';
-      activeTabId = id;
-      const tab = tabs.find(t => t.id === id);
-      if (!tab) return;
-
-      showTabContent(tab);
-      renderTabs();
-      addressBar.focus();
-    }
-
-    // Close tab
-    function closeTab(id) {
-      const index = tabs.findIndex(t => t.id === id);
-      if (index === -1) return;
-
-      if (tabs[index].iframe) {
-        iframeContainer.removeChild(tabs[index].iframe);
-      }
-      tabs.splice(index, 1);
-
-      if (activeTabId === id) {
-        if (tabs.length > 0) {
-          let newActiveIndex = index;
-          if (newActiveIndex >= tabs.length) newActiveIndex = tabs.length - 1;
-          switchTab(tabs[newActiveIndex].id);
-        } else {
-          const newTab = createTab('');
-          tabs.push(newTab);
-          switchTab(newTab.id);
-        }
-      } else {
-        renderTabs();
-      }
-    }
-
-    // Normalize URL or create google search URL
-    function normalizeUrl(input) {
-      input = input.trim();
-      if (!input) return '';
-
-      // Check if looks like a URL (contains dot, no spaces)
-      if (input.includes('.') && !/\s/.test(input)) {
-        if (!/^https?:\/\//i.test(input)) {
-          return 'https://' + input;
-        }
-        return input;
-      }
-
-      // Otherwise treat as google search query
-      return 'https://www.google.com/search?q=' + encodeURIComponent(input);
-    }
-
-    // Navigate current tab to input
-    function navigateCurrentTab(input) {
-      if (!activeTabId) return;
-      const tab = tabs.find(t => t.id === activeTabId);
-      if (!tab) return;
-
-      const url = normalizeUrl(input);
-      tab.url = url;
-      tab.title = url;
-      if (tab.iframe) {
-        tab.iframe.src = url;
-      } else {
-        showTabContent(tab);
-      }
-      renderTabs();
-      addressBar.value = url;
-    }
-
-    // Add new tab with url
-    function addNewTab(url = '') {
-      const tab = createTab(url);
-      tabs.push(tab);
-      switchTab(tab.id);
-    }
-
-    // Initialize with a new tab page (no URL)
-    addNewTab('');
-
-    // Event handlers
-    addTabBtn.onclick = () => {
-      addNewTab('');
-    };
-    addTabBtn.onkeydown = e => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        addNewTab('');
-      }
-    };
-
-    goBtn.onclick = () => {
-      if(addressBar.value.trim()) {
-        navigateCurrentTab(addressBar.value);
-      }
-    };
-    addressBar.addEventListener('keydown', e => {
-      if (e.key === 'Enter') {
-        if(addressBar.value.trim()) {
-          navigateCurrentTab(addressBar.value);
-        }
-      }
+      logConsole(`Loaded: ${normalizedUrl}`);
     });
-  })();
+
+    contentEl.appendChild(iframe);
+
+    const newTab = {id, url: normalizedUrl, title: title || normalizedUrl};
+    tabs.push(newTab);
+    switchTab(id);
+
+    saveTabsToStorage();
+    addHistory(normalizedUrl);
+  }
+
+  function switchTab(id) {
+    if (activeTabId === id) return;
+    activeTabId = id;
+    const iframes = contentEl.querySelectorAll('iframe.browser-frame');
+    iframes.forEach(f => f.classList.toggle('active', f.dataset.id === id));
+    renderTabs();
+    updateAddressBar();
+  }
+
+  function closeTab(id) {
+    const tabIndex = tabs.findIndex(t => t.id === id);
+    if (tabIndex === -1) return;
+    if (tabs[tabIndex].id === activeTabId) {
+      // Switch to left tab or none
+      if (tabs.length > 1) {
+        let newActiveIndex = tabIndex > 0 ? tabIndex - 1 : 1;
+        switchTab(tabs[newActiveIndex].id);
+      } else {
+        activeTabId = null;
+        addressBar.value = '';
+        homepageEl.style.display = 'flex';
+      }
+    }
+    // Remove iframe
+    const iframe = contentEl.querySelector(`iframe.browser-frame[data-id="${id}"]`);
+    if (iframe) iframe.remove();
+
+    tabs.splice(tabIndex, 1);
+    renderTabs();
+    saveTabsToStorage();
+  }
+
+  function updateTabTitle(id, newTitle) {
+    const tab = tabs.find(t => t.id === id);
+    if (!tab) return;
+    tab.title = newTitle || tab.url;
+    renderTabs();
+    saveTabsToStorage();
+  }
+
+  function updateAddressBar() {
+    if (!activeTabId) {
+      addressBar.value = '';
+      homepageEl.style.display = 'flex';
+      return;
+    }
+    homepageEl.style.display = 'none';
+    const tab = tabs.find(t => t.id === activeTabId);
+    if (!tab) return;
+    addressBar.value = tab.url;
+  }
+
+  function saveTabsToStorage() {
+    saveToStorage('emuengine_tabs', tabs);
+    saveToStorage('emuengine_activeTabId', activeTabId);
+  }
+
+  function loadTabsFromStorage() {
+    tabs = loadFromStorage('emuengine_tabs', []);
+    activeTabId = loadFromStorage('emuengine_activeTabId', null);
+
+    // Remove any iframes before restore
+    contentEl.querySelectorAll('iframe.browser-frame').forEach(f => f.remove());
+
+    // Recreate iframes
+    for (const tab of tabs) {
+      const iframe = createIframe(tab.url, tab.id);
+      if (tab.id === activeTabId) iframe.classList.add('active');
+      contentEl.appendChild(iframe);
+    }
+    if (activeTabId) {
+      homepageEl.style.display = 'none';
+    }
+    renderTabs();
+    updateAddressBar();
+  }
+
+  // --- Bookmarks ---
+
+  let bookmarks = loadFromStorage(LS_BOOKMARKS, []);
+
+  function renderBookmarks() {
+    bookmarkListEl.innerHTML = '';
+    for (const bm of bookmarks) {
+      const li = document.createElement('li');
+      li.textContent = bm.title || bm.url;
+      li.title = bm.url;
+      li.addEventListener('click', () => {
+        openTab(bm.url, bm.title);
+      });
+
+      const rmBtn = document.createElement('button');
+      rmBtn.textContent = '×';
+      rmBtn.style.float = 'right';
+      rmBtn.style.background = 'transparent';
+      rmBtn.style.border = 'none';
+      rmBtn.style.color = 'red';
+      rmBtn.style.cursor = 'pointer';
+      rmBtn.title = 'Remove Bookmark';
+      rmBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        removeBookmark(bm.url);
+      });
+      li.appendChild(rmBtn);
+
+      bookmarkListEl.appendChild(li);
+    }
+  }
+
+  function addBookmark(url, title) {
+    if (bookmarks.find(b => b.url === url)) return;
+    bookmarks.push({url, title});
+    saveToStorage(LS_BOOKMARKS, bookmarks);
+    renderBookmarks();
+    logConsole(`Bookmark added: ${title || url}`);
+  }
+
+  function removeBookmark(url) {
+    bookmarks = bookmarks.filter(b => b.url !== url);
+    saveToStorage(LS_BOOKMARKS, bookmarks);
+    renderBookmarks();
+    logConsole(`Bookmark removed: ${url}`);
+  }
+
+  btnAddBookmark.addEventListener('click', () => {
+    if (!activeTabId) return;
+    const tab = tabs.find(t => t.id === activeTabId);
+    if (!tab) return;
+    addBookmark(tab.url, tab.title);
+  });
+
+  // --- History ---
+
+  let historyData = loadFromStorage(LS_HISTORY, []);
+
+  function addHistory(url) {
+    const now = Date.now();
+    historyData.unshift({url, timestamp: now});
+    if (historyData.length > 200) historyData.pop();
+    saveToStorage(LS_HISTORY, historyData);
+    renderHistory();
+  }
+
+  function renderHistory() {
+    historyListEl.innerHTML = '';
+    for (const item of historyData.slice(0, 30)) {
+      const li = document.createElement('li');
+      const time = new Date(item.timestamp).toLocaleString();
+      li.textContent = `${item.url} (${time})`;
+      li.title = item.url;
+      li.addEventListener('click', () => {
+        openTab(item.url);
+      });
+      historyListEl.appendChild(li);
+    }
+  }
+
+  btnClearHistory.addEventListener('click', () => {
+    if (!confirm('Clear entire browsing history?')) return;
+    historyData = [];
+    saveToStorage(LS_HISTORY, historyData);
+    renderHistory();
+    logConsole('History cleared');
+  });
+
+  // --- Quick Access ---
+
+  // Predefined quick sites, editable by code if desired
+  let quickAccessSites = loadFromStorage(LS_QUICK_ACCESS, [
+    {name: 'Google', url: 'https://google.com'},
+    {name: 'YouTube', url: 'https://youtube.com'},
+    {name: 'GitHub', url: 'https://github.com'},
+    {name: 'Wikipedia', url: 'https://wikipedia.org'},
+  ]);
+
+  function renderQuickAccess() {
+    quickAccessListEl.innerHTML = '';
+    for (const site of quickAccessSites) {
+      const li = document.createElement('li');
+      li.textContent = site.name;
+      li.title = site.url;
+      li.addEventListener('click', () => {
+        openTab(site.url);
+      });
+      quickAccessListEl.appendChild(li);
+    }
+  }
+
+  // --- Theme ---
+
+  function applyTheme(theme) {
+    if (theme === 'dark') {
+      document.body.classList.add('dark');
+      themeToggleBtn.textContent = 'Light Mode';
+    } else {
+      document.body.classList.remove('dark');
+      themeToggleBtn.textContent = 'Dark Mode';
+    }
+    saveToStorage(LS_THEME, theme);
+  }
+
+  themeToggleBtn.addEventListener('click', () => {
+    const current = document.body.classList.contains('dark') ? 'dark' : 'light';
+    applyTheme(current === 'dark' ? 'light' : 'dark');
+  });
+
+  // --- Search on homepage ---
+
+  function doSearch(query) {
+    if (!query.trim()) return;
+    openTab(`https://www.google.com/search?q=${encodeURIComponent(query)}`);
+  }
+
+  searchBtn.addEventListener('click', () => {
+    doSearch(searchInput.value);
+  });
+  searchInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') doSearch(searchInput.value);
+  });
+
+  // --- Address bar navigation ---
+
+  btnGo.addEventListener('click', () => {
+    const val = addressBar.value.trim();
+    if (!val) return;
+    openTab(val);
+  });
+
+  addressBar.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      btnGo.click();
+    }
+  });
+
+  // --- Initialization ---
+
+  function init() {
+    const savedTheme = loadFromStorage(LS_THEME, 'light');
+    applyTheme(savedTheme);
+
+    loadTabsFromStorage();
+
+    renderBookmarks();
+    renderHistory();
+    renderQuickAccess();
+
+    // If no tabs, show homepage
+    if (!tabs.length) {
+      homepageEl.style.display = 'flex';
+    } else {
+      homepageEl.style.display = 'none';
+    }
+
+    logConsole('EmuEngine Mini Browser started');
+  }
+
+  init();
+
+  // Expose for debugging:
+  window.EmuEngine = {
+    openTab,
+    closeTab,
+    switchTab,
+    tabs,
+    bookmarks,
+    historyData,
+    addBookmark,
+    removeBookmark,
+    addHistory,
+  };
+
+})();
 </script>
 </body>
 </html>
