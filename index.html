@@ -3,549 +3,443 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>EmuEngine.com - Better Browser Experience</title>
+<title>EmuEngine.com - Your Custom Web Engine</title>
 <style>
-  /* Reset & base */
-  body, html {
-    margin: 0; padding: 0; height: 100vh;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    display: flex; flex-direction: column;
-    background-color: var(--bg);
-    color: var(--fg);
-    --bg-light: #f0f0f5;
-    --fg-light: #222;
+  :root {
+    --bg-light: #ffffff;
     --bg-dark: #121212;
-    --fg-dark: #eee;
-    --accent: #4c8cff;
-    --accent-dark: #3672f0;
+    --text-light: #222222;
+    --text-dark: #eeeeee;
+    --accent-color: #0066ff;
+    --input-bg-light: #f0f0f0;
+    --input-bg-dark: #222222;
   }
-  /* Theme vars default to light */
-  body.light {
-    --bg: var(--bg-light);
-    --fg: var(--fg-light);
-    --accent-current: var(--accent);
-  }
-  body.dark {
-    --bg: var(--bg-dark);
-    --fg: var(--fg-dark);
-    --accent-current: var(--accent-dark);
-  }
-
-  /* Container flex for full height */
-  #app {
-    flex: 1;
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg-light);
+    color: var(--text-light);
     display: flex;
     flex-direction: column;
-  }
-
-  /* Controls top bar */
-  #controls {
-    background: var(--bg);
-    padding: 8px 12px;
-    display: flex;
     align-items: center;
-    gap: 6px;
-    border-bottom: 1px solid var(--accent-current);
+    min-height: 100vh;
+    transition: background 0.3s, color 0.3s;
   }
-
-  button, input[type="text"] {
-    font-size: 15px;
+  body.dark {
+    background: var(--bg-dark);
+    color: var(--text-dark);
   }
-
-  button {
-    background: var(--accent-current);
-    border: none;
-    border-radius: 4px;
+  header {
+    width: 100%;
+    background: var(--accent-color);
     color: white;
-    padding: 6px 12px;
-    cursor: pointer;
+    padding: 1rem 2rem;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.5rem;
     user-select: none;
-    transition: background-color 0.3s ease;
+  }
+  main {
+    flex: 1;
+    width: 100%;
+    max-width: 480px;
+    padding: 2rem 1rem;
+    box-sizing: border-box;
+  }
+  .search-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  input[type="text"] {
+    padding: 12px 15px;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    border: 1.5px solid #aaa;
+    background: var(--input-bg-light);
+    color: inherit;
+    transition: background 0.3s, border-color 0.3s;
+  }
+  body.dark input[type="text"] {
+    background: var(--input-bg-dark);
+    border-color: #555;
+  }
+  input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 5px var(--accent-color);
+  }
+  .buttons-row {
+    display: flex;
+    gap: 1rem;
+  }
+  button {
+    flex: 1;
+    padding: 12px 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: var(--accent-color);
+    color: white;
+    transition: background 0.3s;
+    user-select: none;
   }
   button:hover {
-    background: var(--accent);
+    background: #004ecc;
   }
-  button:disabled {
-    background: #888;
-    cursor: default;
-  }
-
-  input[type="text"] {
-    flex-grow: 1;
-    padding: 6px 10px;
-    border: 1px solid var(--accent-current);
-    border-radius: 4px;
-    color: var(--fg);
-    background-color: var(--bg);
-    outline-offset: 2px;
-  }
-
-  /* Tab bar */
-  #tab-bar {
-    background: var(--bg);
-    display: flex;
-    border-bottom: 1px solid var(--accent-current);
-    overflow-x: auto;
-  }
-  .tab {
-    flex-shrink: 0;
-    padding: 6px 12px;
+  .toggle-theme {
+    margin-top: 1.5rem;
     cursor: pointer;
     user-select: none;
-    border-right: 1px solid var(--accent-current);
-    color: var(--fg);
-    background: var(--bg);
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    text-align: center;
+    color: var(--accent-color);
+    font-weight: 600;
+    font-size: 1rem;
   }
-  .tab.active {
-    background: var(--accent-current);
-    color: white;
-    font-weight: bold;
+  .toggle-theme:hover {
+    text-decoration: underline;
   }
-  .tab .close-btn {
-    background: transparent;
-    border: none;
-    font-weight: bold;
-    color: inherit;
-    cursor: pointer;
-    padding: 0 4px;
-    font-size: 14px;
+  .voice-btn {
+    background: #ff4081;
+    flex: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    font-size: 24px;
+    line-height: 48px;
+    text-align: center;
+    padding: 0;
   }
-
-  /* Bookmark dropdown */
-  #bookmark-list {
-    position: absolute;
-    background: var(--bg);
-    border: 1px solid var(--accent-current);
-    margin-top: 2px;
-    max-height: 150px;
+  .voice-btn.listening {
+    background: #f50057;
+    box-shadow: 0 0 10px #f50057;
+  }
+  /* History and bookmarks */
+  section {
+    margin-top: 2rem;
+    background: var(--input-bg-light);
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    color: var(--text-light);
+  }
+  body.dark section {
+    background: var(--input-bg-dark);
+    color: var(--text-dark);
+  }
+  h3 {
+    margin-top: 0;
+    font-weight: 700;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 6px;
+  }
+  ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    max-height: 160px;
     overflow-y: auto;
-    width: 300px;
-    display: none;
-    z-index: 10;
   }
-  #bookmark-list div {
-    padding: 6px 8px;
+  li {
+    padding: 6px 0;
+    border-bottom: 1px solid #ddd;
     cursor: pointer;
   }
-  #bookmark-list div:hover {
-    background: var(--accent-current);
+  body.dark li {
+    border-bottom: 1px solid #444;
+  }
+  li:hover {
+    background: var(--accent-color);
     color: white;
   }
-
-  /* Iframe container */
-  #iframe-container {
-    flex-grow: 1;
-    position: relative;
-  }
-
-  iframe {
-    border: none;
-    width: 100%;
-    height: 100%;
-  }
-
-  /* Theme toggle */
-  #theme-toggle {
-    background: none;
-    color: var(--accent-current);
-    border: 1px solid var(--accent-current);
-    padding: 6px 10px;
-    border-radius: 4px;
-  }
-  #theme-toggle:hover {
-    background: var(--accent-current);
-    color: white;
+  .small-text {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 0.5rem;
   }
 </style>
 </head>
-<body class="light">
-
-<div id="app">
-  <div id="controls">
-    <button id="backBtn" title="Back">&lt;</button>
-    <button id="forwardBtn" title="Forward">&gt;</button>
-    <input list="url-suggestions" id="urlInput" type="text" placeholder="Enter URL or search..." autocomplete="off" spellcheck="false" />
-    <datalist id="url-suggestions"></datalist>
-    <button id="goBtn">Go</button>
-    <button id="bookmarkBtn" title="Add Bookmark">★</button>
-    <button id="theme-toggle" title="Toggle Light/Dark">Dark Mode</button>
+<body>
+<header>EmuEngine.com</header>
+<main>
+  <div class="search-container">
+    <input id="searchInput" type="text" placeholder="Search Google or enter a URL" autocomplete="off" spellcheck="false" />
+    <div style="display:flex; gap: 0.5rem; align-items:center;">
+      <button id="searchBtn" aria-label="Search Google">Search</button>
+      <button id="goBtn" aria-label="Go to URL">Go</button>
+      <button id="voiceBtn" class="voice-btn" title="Voice Search 🎙️">🎙️</button>
+    </div>
   </div>
-  <div id="bookmark-list"></div>
-  <div id="tab-bar"></div>
-  <div id="iframe-container"></div>
-</div>
+  
+  <div class="toggle-theme" id="themeToggle" role="button" tabindex="0" aria-pressed="false">
+    Switch to Dark Mode
+  </div>
+
+  <section aria-label="Search History">
+    <h3>Search History</h3>
+    <ul id="historyList" tabindex="0" aria-live="polite"></ul>
+  </section>
+
+  <section aria-label="Bookmarks">
+    <h3>Bookmarks</h3>
+    <ul id="bookmarkList" tabindex="0" aria-live="polite"></ul>
+  </section>
+
+  <div style="margin-top: 1rem; text-align:center;">
+    <input type="text" id="bookmarkInput" placeholder="Bookmark a site URL" />
+    <button id="addBookmarkBtn">Add Bookmark</button>
+  </div>
+</main>
 
 <script>
-(() => {
-  const app = document.getElementById('app');
-  const backBtn = document.getElementById('backBtn');
-  const forwardBtn = document.getElementById('forwardBtn');
-  const goBtn = document.getElementById('goBtn');
-  const urlInput = document.getElementById('urlInput');
-  const bookmarkBtn = document.getElementById('bookmarkBtn');
-  const themeToggle = document.getElementById('theme-toggle');
-  const bookmarkList = document.getElementById('bookmark-list');
-  const urlSuggestions = document.getElementById('url-suggestions');
-  const tabBar = document.getElementById('tab-bar');
-  const iframeContainer = document.getElementById('iframe-container');
+  (() => {
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const goBtn = document.getElementById('goBtn');
+    const voiceBtn = document.getElementById('voiceBtn');
+    const themeToggle = document.getElementById('themeToggle');
+    const historyList = document.getElementById('historyList');
+    const bookmarkList = document.getElementById('bookmarkList');
+    const bookmarkInput = document.getElementById('bookmarkInput');
+    const addBookmarkBtn = document.getElementById('addBookmarkBtn');
 
-  // State
-  let tabs = [];
-  let currentTabId = null;
-  let theme = localStorage.getItem('emuengine-theme') || 'light';
-
-  // --- Helpers ---
-
-  function isValidUrl(str) {
-    try {
-      new URL(str);
-      return true;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  function normalizeUrl(url) {
-    if (!url) return '';
-    url = url.trim();
-    if (url === '') return '';
-    if (!url.match(/^https?:\/\//i)) {
-      url = 'https://' + url;
-    }
-    return url;
-  }
-
-  // --- History per tab ---
-
-  function createTab(url = 'https://example.com') {
-    const id = Date.now() + Math.random().toString(36).slice(2);
-    const tab = {
-      id,
-      history: [url],
-      historyIndex: 0,
-      bookmarks: loadBookmarks(),
+    const STORAGE_KEYS = {
+      HISTORY: 'emuengine_search_history',
+      BOOKMARKS: 'emuengine_bookmarks',
+      THEME: 'emuengine_theme',
     };
-    tabs.push(tab);
-    createTabUI(tab);
-    switchTab(id);
-    saveTabs();
-    return tab;
-  }
 
-  function createTabUI(tab) {
-    const tabEl = document.createElement('div');
-    tabEl.classList.add('tab');
-    tabEl.dataset.id = tab.id;
-    tabEl.textContent = 'Loading...';
+    // Load and save to localStorage helpers
+    function loadData(key, defaultValue) {
+      try {
+        const json = localStorage.getItem(key);
+        if (!json) return defaultValue;
+        return JSON.parse(json);
+      } catch {
+        return defaultValue;
+      }
+    }
+    function saveData(key, data) {
+      try {
+        localStorage.setItem(key, JSON.stringify(data));
+      } catch {}
+    }
 
-    const closeBtn = document.createElement('button');
-    closeBtn.textContent = '×';
-    closeBtn.className = 'close-btn';
-    closeBtn.title = 'Close tab';
+    // Manage History
+    let history = loadData(STORAGE_KEYS.HISTORY, []);
+    function addToHistory(query) {
+      if (!query) return;
+      // avoid duplicates
+      history = history.filter(q => q !== query);
+      history.unshift(query);
+      if (history.length > 30) history.pop(); // max 30
+      saveData(STORAGE_KEYS.HISTORY, history);
+      renderHistory();
+    }
+    function renderHistory() {
+      historyList.innerHTML = '';
+      if (history.length === 0) {
+        historyList.innerHTML = '<li><em>No history yet.</em></li>';
+        return;
+      }
+      for (const q of history) {
+        const li = document.createElement('li');
+        li.textContent = q;
+        li.title = `Search or go to "${q}"`;
+        li.tabIndex = 0;
+        li.onclick = () => performSearchOrGo(q);
+        li.onkeypress = (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            performSearchOrGo(q);
+          }
+        };
+        historyList.appendChild(li);
+      }
+    }
 
-    closeBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      closeTab(tab.id);
-    });
+    // Manage Bookmarks
+    let bookmarks = loadData(STORAGE_KEYS.BOOKMARKS, []);
+    function addBookmark(url) {
+      if (!url) return;
+      if (!bookmarks.includes(url)) {
+        bookmarks.unshift(url);
+        if (bookmarks.length > 50) bookmarks.pop();
+        saveData(STORAGE_KEYS.BOOKMARKS, bookmarks);
+        renderBookmarks();
+      }
+    }
+    function removeBookmark(url) {
+      bookmarks = bookmarks.filter(b => b !== url);
+      saveData(STORAGE_KEYS.BOOKMARKS, bookmarks);
+      renderBookmarks();
+    }
+    function renderBookmarks() {
+      bookmarkList.innerHTML = '';
+      if (bookmarks.length === 0) {
+        bookmarkList.innerHTML = '<li><em>No bookmarks yet.</em></li>';
+        return;
+      }
+      for (const url of bookmarks) {
+        const li = document.createElement('li');
+        li.tabIndex = 0;
+        li.textContent = url;
+        li.title = `Go to ${url}`;
+        li.onclick = () => openUrl(url);
+        li.onkeypress = (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openUrl(url);
+          }
+        };
+        // Add remove button
+        const removeBtn = document.createElement('button');
+        removeBtn.textContent = '✕';
+        removeBtn.style.float = 'right';
+        removeBtn.style.background = 'transparent';
+        removeBtn.style.border = 'none';
+        removeBtn.style.color = 'red';
+        removeBtn.style.cursor = 'pointer';
+        removeBtn.title = 'Remove Bookmark';
+        removeBtn.onclick = (e) => {
+          e.stopPropagation();
+          removeBookmark(url);
+        };
+        li.appendChild(removeBtn);
 
-    tabEl.appendChild(closeBtn);
+        bookmarkList.appendChild(li);
+      }
+    }
 
-    tabEl.addEventListener('click', () => {
-      switchTab(tab.id);
-    });
+    // Open URL helper
+    function openUrl(url) {
+      if (!url) return;
+      if (!/^https?:\/\//i.test(url)) {
+        url = 'http://' + url;
+      }
+      window.open(url, '_blank');
+    }
 
-    tabBar.appendChild(tabEl);
-  }
+    // Search helper
+    function performSearch(query) {
+      if (!query) return;
+      const url = 'https://www.google.com/search?q=' + encodeURIComponent(query);
+      window.open(url, '_blank');
+      addToHistory(query);
+    }
 
-  function updateTabUI(tab) {
-    const tabEl = tabBar.querySelector(`.tab[data-id="${tab.id}"]`);
-    if (!tabEl) return;
-    const url = tab.history[tab.historyIndex];
-    tabEl.childNodes[0].textContent = new URL(url).hostname || url;
-  }
-
-  function switchTab(id) {
-    if (currentTabId === id) return;
-    currentTabId = id;
-    tabs.forEach(t => {
-      const tabEl = tabBar.querySelector(`.tab[data-id="${t.id}"]`);
-      if (t.id === id) tabEl.classList.add('active');
-      else tabEl.classList.remove('active');
-    });
-    loadCurrentTabUrl();
-  }
-
-  function closeTab(id) {
-    const idx = tabs.findIndex(t => t.id === id);
-    if (idx === -1) return;
-    tabs.splice(idx, 1);
-
-    const tabEl = tabBar.querySelector(`.tab[data-id="${id}"]`);
-    if (tabEl) tabEl.remove();
-
-    if (currentTabId === id) {
-      if (tabs.length > 0) {
-        switchTab(tabs[Math.max(0, idx - 1)].id);
+    // Search or Go helper
+    function performSearchOrGo(text) {
+      if (!text) return;
+      if (text.includes(' ') || !text.includes('.')) {
+        // Probably a search query
+        performSearch(text);
       } else {
-        // No tabs left - create new
-        createTab('https://example.com');
+        // Looks like a URL or domain, go there
+        openUrl(text);
+        addToHistory(text);
       }
     }
-    saveTabs();
-  }
 
-  function loadCurrentTabUrl() {
-    const tab = tabs.find(t => t.id === currentTabId);
-    if (!tab) return;
-    const url = tab.history[tab.historyIndex];
-    urlInput.value = url;
-    loadUrl(url);
-    updateNavButtons();
-    updateTabUI(tab);
-  }
+    // Buttons handlers
+    searchBtn.onclick = () => {
+      performSearchOrGo(searchInput.value.trim());
+    };
+    goBtn.onclick = () => {
+      openUrl(searchInput.value.trim());
+      addToHistory(searchInput.value.trim());
+    };
 
-  // --- Navigation ---
+    // Enter key triggers search
+    searchInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        searchBtn.click();
+      }
+    });
 
-  function navigate(url) {
-    const tab = tabs.find(t => t.id === currentTabId);
-    if (!tab) return;
-    url = normalizeUrl(url);
-    if (!url) return;
-    // If navigating from historyIndex in middle, truncate forward history
-    if (tab.historyIndex < tab.history.length - 1) {
-      tab.history = tab.history.slice(0, tab.historyIndex + 1);
-    }
-    tab.history.push(url);
-    tab.historyIndex++;
-    saveTabs();
-    loadCurrentTabUrl();
-  }
+    // Voice search
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
 
-  backBtn.onclick = () => {
-    const tab = tabs.find(t => t.id === currentTabId);
-    if (!tab) return;
-    if (tab.historyIndex > 0) {
-      tab.historyIndex--;
-      saveTabs();
-      loadCurrentTabUrl();
-    }
-  };
+      voiceBtn.style.display = 'inline-block';
 
-  forwardBtn.onclick = () => {
-    const tab = tabs.find(t => t.id === currentTabId);
-    if (!tab) return;
-    if (tab.historyIndex < tab.history.length - 1) {
-      tab.historyIndex++;
-      saveTabs();
-      loadCurrentTabUrl();
-    }
-  };
-
-  goBtn.onclick = () => {
-    navigate(urlInput.value.trim());
-  };
-
-  urlInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      navigate(urlInput.value.trim());
-    }
-  });
-
-  // --- Load URL into iframe ---
-
-  function loadUrl(url) {
-    iframeContainer.innerHTML = '';
-    const iframe = document.createElement('iframe');
-    iframe.src = url;
-    iframeContainer.appendChild(iframe);
-  }
-
-  // --- Update buttons state ---
-
-  function updateNavButtons() {
-    const tab = tabs.find(t => t.id === currentTabId);
-    if (!tab) {
-      backBtn.disabled = true;
-      forwardBtn.disabled = true;
-      return;
-    }
-    backBtn.disabled = tab.historyIndex <= 0;
-    forwardBtn.disabled = tab.historyIndex >= tab.history.length - 1;
-  }
-
-  // --- Bookmarks ---
-
-  function loadBookmarks() {
-    const bm = localStorage.getItem('emuengine-bookmarks');
-    return bm ? JSON.parse(bm) : [];
-  }
-
-  function saveBookmarks(bookmarks) {
-    localStorage.setItem('emuengine-bookmarks', JSON.stringify(bookmarks));
-  }
-
-  function addBookmark(url) {
-    const bookmarks = loadBookmarks();
-    if (!bookmarks.find(b => b.url === url)) {
-      bookmarks.push({ url, title: url });
-      saveBookmarks(bookmarks);
-      updateBookmarkSuggestions();
-    }
-  }
-
-  function removeBookmark(url) {
-    let bookmarks = loadBookmarks();
-    bookmarks = bookmarks.filter(b => b.url !== url);
-    saveBookmarks(bookmarks);
-    updateBookmarkSuggestions();
-  }
-
-  // Show bookmarks in dropdown list under input
-  function showBookmarkList() {
-    const bookmarks = loadBookmarks();
-    if (bookmarks.length === 0) {
-      bookmarkList.style.display = 'none';
-      return;
-    }
-    bookmarkList.innerHTML = '';
-    bookmarks.forEach(bm => {
-      const div = document.createElement('div');
-      div.textContent = bm.url;
-      div.title = bm.url;
-      div.addEventListener('click', () => {
-        navigate(bm.url);
-        bookmarkList.style.display = 'none';
+      voiceBtn.addEventListener('click', () => {
+        if (voiceBtn.classList.contains('listening')) {
+          recognition.stop();
+          return;
+        }
+        recognition.start();
+        voiceBtn.classList.add('listening');
       });
-      bookmarkList.appendChild(div);
-    });
-    const rect = urlInput.getBoundingClientRect();
-    bookmarkList.style.left = rect.left + 'px';
-    bookmarkList.style.top = rect.bottom + 'px';
-    bookmarkList.style.display = 'block';
-  }
 
-  bookmarkBtn.onclick = () => {
-    const url = normalizeUrl(urlInput.value);
-    if (url) {
-      addBookmark(url);
-      alert(`Added bookmark: ${url}`);
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        searchInput.value = transcript;
+        searchBtn.click();
+        voiceBtn.classList.remove('listening');
+      };
+
+      recognition.onerror = () => {
+        voiceBtn.classList.remove('listening');
+        alert('Voice recognition error. Please try again.');
+      };
+
+      recognition.onend = () => {
+        voiceBtn.classList.remove('listening');
+      };
+    } else {
+      // No voice recognition support
+      voiceBtn.style.display = 'none';
     }
-  };
 
-  urlInput.addEventListener('focus', () => {
-    showBookmarkList();
-  });
-
-  urlInput.addEventListener('blur', () => {
-    // Delay hiding so click on bookmark works
-    setTimeout(() => {
-      bookmarkList.style.display = 'none';
-    }, 200);
-  });
-
-  // Update datalist for autocomplete based on bookmarks
-  function updateBookmarkSuggestions() {
-    const bookmarks = loadBookmarks();
-    urlSuggestions.innerHTML = '';
-    bookmarks.forEach(bm => {
-      const option = document.createElement('option');
-      option.value = bm.url;
-      urlSuggestions.appendChild(option);
-    });
-  }
-
-  // --- Tabs ---
-
-  // Add new tab button
-  const newTabBtn = document.createElement('button');
-  newTabBtn.textContent = '+';
-  newTabBtn.title = 'New Tab';
-  newTabBtn.style.marginLeft = 'auto';
-  newTabBtn.style.background = 'var(--accent-current)';
-  newTabBtn.style.color = 'white';
-  newTabBtn.style.fontWeight = 'bold';
-  newTabBtn.style.borderRadius = '0 4px 4px 0';
-  newTabBtn.style.border = 'none';
-  newTabBtn.style.cursor = 'pointer';
-  newTabBtn.style.padding = '6px 12px';
-  tabBar.appendChild(newTabBtn);
-
-  newTabBtn.onclick = () => {
-    createTab('https://example.com');
-  };
-
-  // --- Theme toggle ---
-
-  function applyTheme() {
-    document.body.className = theme;
-    themeToggle.textContent = theme === 'light' ? 'Dark Mode' : 'Light Mode';
-    // Update colors of dynamic elements
-    newTabBtn.style.background = getComputedStyle(document.body).getPropertyValue('--accent-current').trim();
-  }
-
-  themeToggle.onclick = () => {
-    theme = theme === 'light' ? 'dark' : 'light';
-    localStorage.setItem('emuengine-theme', theme);
-    applyTheme();
-  };
-
-  // --- LocalStorage tabs save/load ---
-
-  function saveTabs() {
-    const saveData = tabs.map(t => ({
-      id: t.id,
-      history: t.history,
-      historyIndex: t.historyIndex,
-    }));
-    localStorage.setItem('emuengine-tabs', JSON.stringify(saveData));
-    localStorage.setItem('emuengine-currentTabId', currentTabId);
-  }
-
-  function loadTabs() {
-    const saveData = localStorage.getItem('emuengine-tabs');
-    if (!saveData) return false;
-    try {
-      const parsed = JSON.parse(saveData);
-      tabs = parsed.map(t => ({
-        id: t.id,
-        history: t.history,
-        historyIndex: t.historyIndex,
-      }));
-      currentTabId = localStorage.getItem('emuengine-currentTabId') || (tabs[0] && tabs[0].id);
-      // Rebuild UI
-      tabBar.innerHTML = '';
-      tabs.forEach(t => createTabUI(t));
-      tabBar.appendChild(newTabBtn);
-      if (currentTabId) {
-        switchTab(currentTabId);
+    // Theme toggle
+    function setTheme(dark) {
+      if (dark) {
+        document.body.classList.add('dark');
+        themeToggle.textContent = 'Switch to Light Mode';
+        themeToggle.setAttribute('aria-pressed', 'true');
+        localStorage.setItem(STORAGE_KEYS.THEME, 'dark');
+      } else {
+        document.body.classList.remove('dark');
+        themeToggle.textContent = 'Switch to Dark Mode';
+        themeToggle.setAttribute('aria-pressed', 'false');
+        localStorage.setItem(STORAGE_KEYS.THEME, 'light');
       }
-      return true;
-    } catch {
-      return false;
     }
-  }
+    themeToggle.onclick = () => {
+      setTheme(!document.body.classList.contains('dark'));
+    };
+    themeToggle.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        themeToggle.click();
+      }
+    });
 
-  // --- Initialize ---
+    // Load theme on start
+    const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME) || 'light';
+    setTheme(savedTheme === 'dark');
 
-  updateBookmarkSuggestions();
-  applyTheme();
+    // Bookmark add button
+    addBookmarkBtn.onclick = () => {
+      let val = bookmarkInput.value.trim();
+      if (!val) return alert('Please enter a URL or site to bookmark.');
+      addBookmark(val);
+      bookmarkInput.value = '';
+    };
+    bookmarkInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') addBookmarkBtn.click();
+    });
 
-  if (!loadTabs()) {
-    createTab('https://example.com');
-  }
-
-  // Close bookmark list on resize or scroll
-  window.addEventListener('resize', () => {
-    bookmarkList.style.display = 'none';
-  });
-  window.addEventListener('scroll', () => {
-    bookmarkList.style.display = 'none';
-  });
-
-})();
+    // Initial render
+    renderHistory();
+    renderBookmarks();
+  })();
 </script>
 
 </body>
